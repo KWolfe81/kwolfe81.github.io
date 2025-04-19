@@ -14,7 +14,7 @@
   </style>
 </head>
 <body>
-  <h1>GPX Splitter</h1>
+  <h1>GPX Splitter!</h1>
   <input type="file" id="gpxFile" accept=".gpx" />
   <label for="segmentLength">Segment length (miles):</label>
   <input type="number" id="segmentLength" value="20" min="1" />
@@ -30,10 +30,21 @@
   <script>
     let map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let originalTrackLayer;
+    let overlayLayers = [];
 
     document.getElementById('gpxFile').addEventListener('change', e => {
-      const name = e.target.files[0]?.name.split('.')[0] || '';
+      const file = e.target.files[0];
+      const name = file?.name.split('.')[0] || '';
       document.getElementById('filenamePrefix').value = name;
+
+      if (file) {
+        parseGPX(file, (geojson, xml) => {
+          if (originalTrackLayer) map.removeLayer(originalTrackLayer);
+          originalTrackLayer = L.geoJSON(geojson).addTo(map);
+          map.fitBounds(originalTrackLayer.getBounds());
+        });
+      }
     });
 
     function parseGPX(file, callback) {
@@ -58,11 +69,12 @@
     }
 
     function splitGeoJSONByDistance(geojson, segmentMiles, xml) {
-      const trkpts = Array.from(xml.querySelectorAll("trkpt")).map(pt => [
-        parseFloat(pt.getAttribute("lon")),
-        parseFloat(pt.getAttribute("lat")),
-        parseFloat(pt.querySelector("ele")?.textContent || 0)
-      ]);
+      const trkpts = Array.from(xml.querySelectorAll("trkpt"))
+        .map(pt => [
+          parseFloat(pt.getAttribute("lon")),
+          parseFloat(pt.getAttribute("lat")),
+          pt.querySelector("ele") ? parseFloat(pt.querySelector("ele").textContent) : null
+        ]);
 
       let output = [], segment = [trkpts[0]], dist = 0;
 
@@ -83,9 +95,13 @@
     function segmentToGPX(seg, name) {
       return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="gpx-splitter">
   <trk><name>${name}</name><trkseg>
-  ${seg.coords.map(c => `<trkpt lat="${c[1]}" lon="${c[0]}"><ele>${c[2]}</ele></trkpt>`).join('\n  ')}
+  ${seg.coords.map(c => `<trkpt lat="${c[1]}" lon="${c[0]}">${c[2] !== null ? `<ele>${c[2]}</ele>` : ''}</trkpt>`).join('\n  ')}
   </trkseg></trk>
 </gpx>`;
+    }
+
+    function getRandomColor() {
+      return `hsl(${Math.floor(Math.random() * 360)}, 80%, 50%)`;
     }
 
     function splitGPX() {
@@ -100,7 +116,9 @@
       parseGPX(file, (geojson, xml) => {
         const segments = splitGeoJSONByDistance(geojson, miles, xml);
         const zip = new JSZip();
-        map.eachLayer(l => { if (l instanceof L.Polyline) map.removeLayer(l); });
+
+        overlayLayers.forEach(l => map.removeLayer(l));
+        overlayLayers = [];
 
         segments.forEach((seg, idx) => {
           const fileName = `${prefix}_${idx + 1}.gpx`;
@@ -116,7 +134,22 @@
           link.className = 'download-link';
           downloads.appendChild(link);
 
-          const line = L.polyline(seg.coords.map(c => [c[1], c[0]])).addTo(map);
+          const color = getRandomColor();
+          const polyline = L.polyline(seg.coords.map(c => [c[1], c[0]]), { color });
+          polyline.addTo(map);
+          overlayLayers.push(polyline);
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = true;
+          checkbox.onchange = () => {
+            if (checkbox.checked) polyline.addTo(map);
+            else map.removeLayer(polyline);
+          };
+          const label = document.createElement('label');
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(` Show ${fileName}`));
+          downloads.appendChild(label);
         });
 
         const zipBtn = document.createElement('button');
@@ -131,7 +164,7 @@
         };
         downloads.appendChild(zipBtn);
 
-        const bounds = L.featureGroup(map._layers).getBounds();
+        const bounds = L.featureGroup(overlayLayers).getBounds();
         if (bounds.isValid()) map.fitBounds(bounds);
       });
     }
