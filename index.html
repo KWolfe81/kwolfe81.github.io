@@ -9,6 +9,8 @@
     body { font-family: sans-serif; margin: 0; padding: 1rem; }
     #map { height: 400px; margin-top: 1rem; }
     input, button { margin: 0.5rem 0; display: block; }
+    #downloads { margin-top: 1rem; }
+    .download-link { display: block; margin: 0.2rem 0; }
   </style>
 </head>
 <body>
@@ -16,8 +18,12 @@
   <input type="file" id="gpxFile" accept=".gpx" />
   <label for="segmentLength">Segment length (miles):</label>
   <input type="number" id="segmentLength" value="20" min="1" />
+  <label for="filenamePrefix">Filename prefix:</label>
+  <input type="text" id="filenamePrefix" />
   <button onclick="splitGPX()">Split GPX</button>
   <div id="map"></div>
+  <div id="downloads"></div>
+
   <script src="https://unpkg.com/leaflet"></script>
   <script src="https://unpkg.com/@tmcw/togeojson"></script>
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
@@ -25,13 +31,18 @@
     let map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    document.getElementById('gpxFile').addEventListener('change', e => {
+      const name = e.target.files[0]?.name.split('.')[0] || '';
+      document.getElementById('filenamePrefix').value = name;
+    });
+
     function parseGPX(file, callback) {
       const reader = new FileReader();
       reader.onload = () => {
         const parser = new DOMParser();
         const xml = parser.parseFromString(reader.result, 'application/xml');
         const geojson = toGeoJSON.gpx(xml);
-        callback(geojson);
+        callback(geojson, xml);
       };
       reader.readAsText(file);
     }
@@ -46,32 +57,33 @@
       return 2 * R * Math.asin(Math.sqrt(aVal));
     }
 
-    function splitGeoJSONByDistance(geojson, segmentMiles) {
-      const coords = geojson.features[0].geometry.coordinates;
-      let output = [], segment = [coords[0]], dist = 0;
+    function splitGeoJSONByDistance(geojson, segmentMiles, xml) {
+      const trkpts = Array.from(xml.querySelectorAll("trkpt")).map(pt => [
+        parseFloat(pt.getAttribute("lon")),
+        parseFloat(pt.getAttribute("lat")),
+        parseFloat(pt.querySelector("ele")?.textContent || 0)
+      ]);
 
-      for (let i = 1; i < coords.length; i++) {
-        const d = haversine(coords[i-1], coords[i]);
+      let output = [], segment = [trkpts[0]], dist = 0;
+
+      for (let i = 1; i < trkpts.length; i++) {
+        const d = haversine([trkpts[i-1][0], trkpts[i-1][1]], [trkpts[i][0], trkpts[i][1]]);
         dist += d;
-        segment.push(coords[i]);
+        segment.push(trkpts[i]);
 
-        if (dist >= segmentMiles || i === coords.length - 1) {
-          output.push({
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: segment },
-            properties: {}
-          });
-          segment = [coords[i]];
+        if (dist >= segmentMiles || i === trkpts.length - 1) {
+          output.push({ coords: segment.slice() });
+          segment = [trkpts[i]];
           dist = 0;
         }
       }
       return output;
     }
 
-    function geojsonToGPX(features) {
+    function segmentToGPX(seg, name) {
       return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="gpx-splitter">
-  <trk><name>Split GPX</name><trkseg>
-  ${features.geometry.coordinates.map(c => `<trkpt lat="${c[1]}" lon="${c[0]}" />`).join('\n  ')}
+  <trk><name>${name}</name><trkseg>
+  ${seg.coords.map(c => `<trkpt lat="${c[1]}" lon="${c[0]}"><ele>${c[2]}</ele></trkpt>`).join('\n  ')}
   </trkseg></trk>
 </gpx>`;
     }
@@ -79,27 +91,48 @@
     function splitGPX() {
       const file = document.getElementById('gpxFile').files[0];
       const miles = parseFloat(document.getElementById('segmentLength').value);
+      const prefix = document.getElementById('filenamePrefix').value.trim() || 'segment';
+      const downloads = document.getElementById('downloads');
+      downloads.innerHTML = '';
+
       if (!file || !miles) return alert('Please provide a GPX file and segment length.');
 
-      parseGPX(file, geojson => {
-        const segments = splitGeoJSONByDistance(geojson, miles);
+      parseGPX(file, (geojson, xml) => {
+        const segments = splitGeoJSONByDistance(geojson, miles, xml);
         const zip = new JSZip();
         map.eachLayer(l => { if (l instanceof L.Polyline) map.removeLayer(l); });
 
         segments.forEach((seg, idx) => {
-          zip.file(`segment_${idx + 1}.gpx`, geojsonToGPX(seg));
-          L.geoJSON(seg).addTo(map);
+          const fileName = `${prefix}_${idx + 1}.gpx`;
+          const gpxData = segmentToGPX(seg, `${prefix} ${idx + 1}`);
+          zip.file(fileName, gpxData);
+
+          const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          link.textContent = `Download ${fileName}`;
+          link.className = 'download-link';
+          downloads.appendChild(link);
+
+          const line = L.polyline(seg.coords.map(c => [c[1], c[0]])).addTo(map);
         });
 
-        zip.generateAsync({ type: 'blob' }).then(content => {
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(content);
-          a.download = 'gpx_segments.zip';
-          a.click();
-        });
+        const zipBtn = document.createElement('button');
+        zipBtn.textContent = 'Download All as ZIP';
+        zipBtn.onclick = () => {
+          zip.generateAsync({ type: 'blob' }).then(content => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(content);
+            a.download = `${prefix}_segments.zip`;
+            a.click();
+          });
+        };
+        downloads.appendChild(zipBtn);
 
-        const bounds = L.geoJSON({ type: 'FeatureCollection', features: segments }).getBounds();
-        map.fitBounds(bounds);
+        const bounds = L.featureGroup(map._layers).getBounds();
+        if (bounds.isValid()) map.fitBounds(bounds);
       });
     }
   </script>
