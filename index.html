@@ -17,20 +17,32 @@
     button:hover, input[type="file"]:hover {
       background-color: #005bb5;
     }
-    .segment-button {
-      background-color: #009688;
-      margin-top: 0.2rem;
+    a.segment-button {
+      display: block;
+      margin: 0.5rem 0;
+      color: #0066cc;
+      text-decoration: none;
+      font-weight: bold;
     }
-    .segment-button:hover {
-      background-color: #00796b;
+    a.segment-button:hover {
+      text-decoration: underline;
     }
-    .toggle-label {
-      margin: 0.2rem 0;
+    .toggle-button {
+      background-color: #ddd;
+      margin: 0.25rem;
+      display: inline-block;
+      border-radius: 5px;
+      color: #000;
+    }
+    .toggle-button.active {
+      background-color: #bbb;
+      font-weight: bold;
+    }
+    .toggle-group {
       display: flex;
-      align-items: center;
-    }
-    .toggle-label input {
-      margin-right: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      gap: 0.5rem;
     }
     .segment-controls {
       margin-top: 1rem;
@@ -39,17 +51,23 @@
       border-radius: 8px;
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
     }
+    #status {
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
-  <h1>GPX-Splitter</h1>
+  <h1>GPX Splitter.</h1>
   <input type="file" id="gpxFile" accept=".gpx" />
   <label for="segmentLength">Segment length (miles):</label>
   <input type="number" id="segmentLength" value="20" min="1" />
   <label for="filenamePrefix">Filename prefix:</label>
   <input type="text" id="filenamePrefix" />
   <button onclick="splitGPX()">Split GPX</button>
+  <div id="status"></div>
   <div id="map"></div>
+  <div id="toggles" class="toggle-group"></div>
   <div id="downloads" class="segment-controls"></div>
 
   <script src="https://unpkg.com/leaflet"></script>
@@ -61,6 +79,7 @@
     let originalTrackLayer;
     let overlayLayers = [];
     let allPolylines = [];
+    let toggleOriginalTrackBtn;
 
     const distinctHues = [0, 30, 60, 120, 180, 210, 270, 300];
     let colorIndex = 0;
@@ -72,20 +91,26 @@
     }
 
     document.getElementById('gpxFile').addEventListener('change', e => {
+      if (!e.target.files || e.target.files.length === 0) return;
+
       const file = e.target.files[0];
-      const name = file?.name.split('.')[0] || '';
+      const name = file.name.split('.')[0] || '';
       document.getElementById('filenamePrefix').value = name;
 
-      if (file) {
-        parseGPX(file, (geojson, xml) => {
-          if (originalTrackLayer) map.removeLayer(originalTrackLayer);
-          originalTrackLayer = L.geoJSON(geojson, {
-            style: { color: '#FF5722', weight: 4 }
-          }).addTo(map);
-          map.fitBounds(originalTrackLayer.getBounds());
-        });
-      }
+      updateStatus('Loading track...');
+      parseGPX(file, (geojson, xml) => {
+        if (originalTrackLayer) map.removeLayer(originalTrackLayer);
+        originalTrackLayer = L.geoJSON(geojson, {
+          style: { color: '#FF5722', weight: 4 }
+        }).addTo(map);
+        map.fitBounds(originalTrackLayer.getBounds());
+        updateStatus('Track loaded.');
+      });
     });
+
+    function updateStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
 
     function parseGPX(file, callback) {
       const reader = new FileReader();
@@ -145,8 +170,11 @@
       const miles = parseFloat(document.getElementById('segmentLength').value);
       const prefix = document.getElementById('filenamePrefix').value.trim() || 'segment';
       const downloads = document.getElementById('downloads');
+      const toggles = document.getElementById('toggles');
       downloads.innerHTML = '';
+      toggles.innerHTML = '';
       colorIndex = 0;
+      updateStatus('Splitting GPX...');
 
       if (!file || !miles) return alert('Please provide a GPX file and segment length.');
 
@@ -157,9 +185,6 @@
         overlayLayers.forEach(l => map.removeLayer(l));
         overlayLayers = [];
         allPolylines = [];
-
-        const selector = document.createElement('select');
-        selector.innerHTML = '<option value="all">Show All Segments</option>';
 
         segments.forEach((seg, idx) => {
           const fileName = `${prefix}_${idx + 1}.gpx`;
@@ -180,35 +205,39 @@
           const polyline = L.polyline(seg.coords.map(c => [c[1], c[0]]), { color }).addTo(map);
           overlayLayers.push(polyline);
           allPolylines.push({ polyline, fileName });
-
-          selector.innerHTML += `<option value="${idx}">${fileName}</option>`;
         });
 
-        const checkboxContainer = document.createElement('div');
         allPolylines.forEach((layerObj, i) => {
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.checked = true;
-          checkbox.onchange = () => {
-            if (checkbox.checked) layerObj.polyline.addTo(map);
-            else map.removeLayer(layerObj.polyline);
+          const btn = document.createElement('button');
+          btn.textContent = `Toggle ${layerObj.fileName}`;
+          btn.className = 'toggle-button active';
+          btn.onclick = () => {
+            const visible = map.hasLayer(layerObj.polyline);
+            if (visible) {
+              map.removeLayer(layerObj.polyline);
+              btn.classList.remove('active');
+            } else {
+              layerObj.polyline.addTo(map);
+              btn.classList.add('active');
+            }
           };
-          const label = document.createElement('label');
-          label.className = 'toggle-label';
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(` Show ${layerObj.fileName}`));
-          checkboxContainer.appendChild(label);
+          toggles.appendChild(btn);
         });
 
-        downloads.appendChild(selector);
-        downloads.appendChild(checkboxContainer);
-
-        selector.addEventListener('change', () => {
-          const val = selector.value;
-          overlayLayers.forEach(l => map.removeLayer(l));
-          if (val === 'all') overlayLayers.forEach(l => l.addTo(map));
-          else allPolylines[parseInt(val)].polyline.addTo(map);
-        });
+        toggleOriginalTrackBtn = document.createElement('button');
+        toggleOriginalTrackBtn.textContent = 'Toggle Original Track';
+        toggleOriginalTrackBtn.className = 'toggle-button active';
+        toggleOriginalTrackBtn.onclick = () => {
+          const visible = map.hasLayer(originalTrackLayer);
+          if (visible) {
+            map.removeLayer(originalTrackLayer);
+            toggleOriginalTrackBtn.classList.remove('active');
+          } else {
+            originalTrackLayer.addTo(map);
+            toggleOriginalTrackBtn.classList.add('active');
+          }
+        };
+        toggles.appendChild(toggleOriginalTrackBtn);
 
         const zipBtn = document.createElement('button');
         zipBtn.textContent = 'Download All as ZIP';
@@ -224,6 +253,8 @@
 
         const bounds = L.featureGroup(overlayLayers).getBounds();
         if (bounds.isValid()) map.fitBounds(bounds);
+
+        updateStatus('GPX split complete.');
       });
     }
   </script>
