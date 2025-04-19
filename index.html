@@ -6,28 +6,23 @@
   <title>GPX Splitter</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 1rem; }
-    #map { height: 400px; margin-top: 1rem; }
-    input, button { margin: 0.5rem 0; display: block; }
-    #downloads { margin-top: 1rem; }
-    .download-link { display: block; margin: 0.2rem 0; }
+    body { font-family: sans-serif; margin: 0; padding: 1rem; background-color: #f9f9f9; color: #333; }
+    #map { height: 400px; margin-top: 1rem; border: 1px solid #ccc; }
+    input, button, select { margin: 0.5rem 0; padding: 0.5rem 1rem; font-size: 1rem; display: block; border: none; border-radius: 5px; }
     button, input[type="file"] {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 5px;
-      background-color: #4CAF50;
+      background-color: #0066cc;
       color: white;
       cursor: pointer;
     }
     button:hover, input[type="file"]:hover {
-      background-color: #45a049;
+      background-color: #005bb5;
     }
     .segment-button {
-      background-color: #2196F3;
+      background-color: #009688;
+      margin-top: 0.2rem;
     }
     .segment-button:hover {
-      background-color: #1e87e5;
+      background-color: #00796b;
     }
     .toggle-label {
       margin: 0.2rem 0;
@@ -37,10 +32,17 @@
     .toggle-label input {
       margin-right: 0.5rem;
     }
+    .segment-controls {
+      margin-top: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+    }
   </style>
 </head>
 <body>
-  <h1>GPX Splitter</h1>
+  <h1>GPX-Splitter</h1>
   <input type="file" id="gpxFile" accept=".gpx" />
   <label for="segmentLength">Segment length (miles):</label>
   <input type="number" id="segmentLength" value="20" min="1" />
@@ -48,7 +50,7 @@
   <input type="text" id="filenamePrefix" />
   <button onclick="splitGPX()">Split GPX</button>
   <div id="map"></div>
-  <div id="downloads"></div>
+  <div id="downloads" class="segment-controls"></div>
 
   <script src="https://unpkg.com/leaflet"></script>
   <script src="https://unpkg.com/@tmcw/togeojson"></script>
@@ -58,6 +60,16 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     let originalTrackLayer;
     let overlayLayers = [];
+    let allPolylines = [];
+
+    const distinctHues = [0, 30, 60, 120, 180, 210, 270, 300];
+    let colorIndex = 0;
+
+    function getDistinctColor() {
+      const hue = distinctHues[colorIndex % distinctHues.length];
+      colorIndex++;
+      return `hsl(${hue}, 80%, 50%)`;
+    }
 
     document.getElementById('gpxFile').addEventListener('change', e => {
       const file = e.target.files[0];
@@ -87,7 +99,7 @@
     }
 
     function haversine(a, b) {
-      const R = 3958.8; // miles
+      const R = 3958.8;
       const toRad = x => x * Math.PI / 180;
       const dLat = toRad(b[1] - a[1]);
       const dLon = toRad(b[0] - a[0]);
@@ -128,16 +140,13 @@
 </gpx>`;
     }
 
-    function getRandomColor() {
-      return `hsl(${Math.floor(Math.random() * 360)}, 80%, 50%)`;
-    }
-
     function splitGPX() {
       const file = document.getElementById('gpxFile').files[0];
       const miles = parseFloat(document.getElementById('segmentLength').value);
       const prefix = document.getElementById('filenamePrefix').value.trim() || 'segment';
       const downloads = document.getElementById('downloads');
       downloads.innerHTML = '';
+      colorIndex = 0;
 
       if (!file || !miles) return alert('Please provide a GPX file and segment length.');
 
@@ -147,6 +156,10 @@
 
         overlayLayers.forEach(l => map.removeLayer(l));
         overlayLayers = [];
+        allPolylines = [];
+
+        const selector = document.createElement('select');
+        selector.innerHTML = '<option value="all">Show All Segments</option>';
 
         segments.forEach((seg, idx) => {
           const fileName = `${prefix}_${idx + 1}.gpx`;
@@ -155,30 +168,46 @@
 
           const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
           const url = URL.createObjectURL(blob);
+
           const link = document.createElement('a');
           link.href = url;
           link.download = fileName;
           link.textContent = `Download ${fileName}`;
-          link.className = 'download-link segment-button';
+          link.className = 'segment-button';
           downloads.appendChild(link);
 
-          const color = getRandomColor();
-          const polyline = L.polyline(seg.coords.map(c => [c[1], c[0]]), { color });
-          polyline.addTo(map);
+          const color = getDistinctColor();
+          const polyline = L.polyline(seg.coords.map(c => [c[1], c[0]]), { color }).addTo(map);
           overlayLayers.push(polyline);
+          allPolylines.push({ polyline, fileName });
 
+          selector.innerHTML += `<option value="${idx}">${fileName}</option>`;
+        });
+
+        const checkboxContainer = document.createElement('div');
+        allPolylines.forEach((layerObj, i) => {
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
           checkbox.checked = true;
           checkbox.onchange = () => {
-            if (checkbox.checked) polyline.addTo(map);
-            else map.removeLayer(polyline);
+            if (checkbox.checked) layerObj.polyline.addTo(map);
+            else map.removeLayer(layerObj.polyline);
           };
           const label = document.createElement('label');
           label.className = 'toggle-label';
           label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(` Show ${fileName}`));
-          downloads.appendChild(label);
+          label.appendChild(document.createTextNode(` Show ${layerObj.fileName}`));
+          checkboxContainer.appendChild(label);
+        });
+
+        downloads.appendChild(selector);
+        downloads.appendChild(checkboxContainer);
+
+        selector.addEventListener('change', () => {
+          const val = selector.value;
+          overlayLayers.forEach(l => map.removeLayer(l));
+          if (val === 'all') overlayLayers.forEach(l => l.addTo(map));
+          else allPolylines[parseInt(val)].polyline.addTo(map);
         });
 
         const zipBtn = document.createElement('button');
