@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Story of the Gazelle, the Wolf(e) &amp; the Eighteen Mountain Peaks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400&family=Spectral:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C2230;
+    --ink-soft:#3C465C;
+    --dusk:#2A2540;
+    --dusk-deep:#1A1730;
+    --gold:#D99A4E;
+    --gold-soft:#E7BE86;
+    --pine:#3E5C50;
+    --pine-deep:#2C4339;
+    --paper:#ECEEEA;
+    --paper-2:#E3E7E1;
+    --rust:#B5532E;
+    --line:rgba(28,34,48,0.14);
+    --measure:38rem;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Spectral',Georgia,serif;
+    font-size:1.18rem;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+  /* faint paper grain for craft, kept barely perceptible */
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:9999;
+    opacity:.03;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:clamp(440px,82vh,760px);
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    align-items:center;
+    text-align:center;
+    overflow:hidden;
+  }
+  .hero-art{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+  .hero-art svg{width:100%;height:100%;display:block}
+  .hero-inner{
+    position:relative;z-index:2;
+    padding:0 1.5rem clamp(3rem,9vh,7rem);
+    max-width:54rem;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.34em;
+    text-transform:uppercase;
+    color:var(--pine-deep);
+  }
+  .hero .eyebrow{color:rgba(255,255,255,.82)}
+  .hero-title{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-optical-sizing:auto;
+    line-height:1.02;
+    letter-spacing:-.015em;
+    font-size:clamp(2.3rem,6.4vw,4.7rem);
+    color:#fff;
+    margin:.7rem 0 .1rem;
+    text-shadow:0 2px 30px rgba(20,18,38,.45);
+  }
+  .hero-title .amp{font-style:italic;font-weight:400;color:var(--gold-soft)}
+  .hero-sub{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:400;
+    font-size:clamp(1rem,2.4vw,1.4rem);
+    color:rgba(255,255,255,.9);
+    margin-top:.55rem;
+  }
+  .hero-stats{
+    margin-top:1.6rem;
+    font-family:'Space Mono',monospace;
+    font-size:.74rem;
+    letter-spacing:.18em;
+    color:rgba(255,255,255,.8);
+    text-transform:uppercase;
+  }
+  .hero-stats b{color:var(--gold-soft);font-weight:700}
+
+  /* ---------- STORY ---------- */
+  .scroll{
+    max-width:var(--measure);
+    margin:0 auto;
+    padding:clamp(3.5rem,8vh,6rem) 1.5rem 1rem;
+  }
+  .scroll p{margin:0 0 1.5rem}
+
+  .lede::first-letter{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    color:var(--rust);
+    float:left;
+    font-size:4.6rem;
+    line-height:.78;
+    padding:.32rem .55rem 0 0;
+  }
+
+  /* character intro panel */
+  .pair{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    border:1px solid var(--line);
+    border-radius:3px;
+    overflow:hidden;
+    margin:2.6rem 0 2.8rem;
+    background:var(--paper-2);
+  }
+  .pair > div{padding:1.6rem 1.4rem}
+  .pair .wolf{border-right:1px solid var(--line)}
+  .pair h3{
+    font-family:'Space Mono',monospace;
+    font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;
+    margin-bottom:.5rem;
+  }
+  .pair .wolf h3{color:var(--ink-soft)}
+  .pair .gaz h3{color:var(--rust)}
+  .pair p{
+    margin:0;font-size:1rem;line-height:1.7;font-style:italic;color:var(--ink-soft);
+  }
+  .pair .glyph{font-size:1.3rem;line-height:1;margin-bottom:.55rem;display:block}
+
+  /* dialogue */
+  .exchange{
+    border-left:2px solid rgba(217,154,78,.55);
+    padding:.15rem 0 .15rem 1.25rem;
+    margin:0 0 1.5rem;
+  }
+  .exchange .say{
+    font-style:italic;
+    color:var(--ink-soft);
+    margin:0 0 .55rem;
+  }
+  .exchange .say:last-child{margin-bottom:0}
+
+  .beat{font-style:italic;color:var(--pine-deep);text-align:center;margin:1.7rem 0}
+  .stack{text-align:center;line-height:1.5;margin:1.4rem 0;font-weight:500}
+
+  /* ---------- DIVIDER ---------- */
+  .divider{
+    display:flex;align-items:center;gap:1rem;
+    max-width:var(--measure);margin:2.7rem auto;padding:0 1.5rem;
+  }
+  .divider .rule{flex:1;height:1px;background:var(--line)}
+  .divider .mark{display:flex;align-items:center;gap:.7rem;flex-shrink:0}
+  .divider .peaks{
+    font-family:'Space Mono',monospace;
+    font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--pine-deep);white-space:nowrap;
+  }
+  .divider svg{display:block}
+
+  /* ---------- PHOTO PLATES (natural aspect, never cropped) ---------- */
+  .plate{max-width:var(--measure);margin:2.8rem auto;padding:0 1.5rem}
+  .plate-frame{
+    border:1px solid var(--line);
+    border-radius:3px;
+    overflow:hidden;
+    background:var(--paper-2);
+    box-shadow:0 14px 34px -22px rgba(28,34,48,.55);
+    line-height:0;
+  }
+  .plate-frame img{width:100%;height:auto;display:block}
+  .plate figcaption{
+    font-family:'Space Mono',monospace;
+    font-size:.72rem;letter-spacing:.06em;line-height:1.5;
+    color:var(--ink-soft);margin-top:.7rem;
+  }
+  .plate figcaption::before{content:"↳ ";color:var(--rust)}
+
+  /* ---------- DIPTYCH (two photos side by side) ---------- */
+  .duo{max-width:var(--measure);margin:2.8rem auto;padding:0 1.5rem}
+  .duo-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+  .duo-grid .cell{
+    border:1px solid var(--line);
+    border-radius:3px;overflow:hidden;
+    background:var(--paper-2);
+    box-shadow:0 14px 34px -22px rgba(28,34,48,.55);
+  }
+  .duo-grid.port .cell{aspect-ratio:3/4}
+  .duo-grid.land .cell{aspect-ratio:4/3}
+  .duo-grid .cell img{width:100%;height:100%;object-fit:cover;display:block}
+  .duo figcaption{
+    font-family:'Space Mono',monospace;
+    font-size:.72rem;letter-spacing:.06em;line-height:1.5;
+    color:var(--ink-soft);margin-top:.7rem;
+  }
+  .duo figcaption::before{content:"↳ ";color:var(--rust)}
+
+  /* ---------- MORAL (dawn-paper blending down into night) ---------- */
+  .moral{
+    position:relative;
+    min-height:clamp(560px,88vh,940px);
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:0 1.5rem clamp(4.5rem,12vh,7rem);
+    text-align:center;
+    overflow:hidden;
+    background:linear-gradient(180deg,
+      #ECEEEA 0%,
+      #ECE6DA 8%,
+      #EBC79A 20%,
+      #E0A075 31%,
+      #B97E78 42%,
+      #7E6480 54%,
+      #4C4467 66%,
+      #2A2540 80%,
+      #1A1730 100%);
+  }
+  .moral-sky{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+  .moral-sky svg{width:100%;height:100%;display:block}
+  .moral-inner{position:relative;z-index:2;max-width:38rem;margin:0 auto}
+  .moral .eyebrow{color:#fff;opacity:.85}
+  .moral-line{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:clamp(1.9rem,4.7vw,3.05rem);
+    line-height:1.32;color:#fff;
+    margin-top:1.1rem;letter-spacing:-.01em;
+    text-shadow:0 2px 24px rgba(15,12,30,.45);
+  }
+
+  /* ---------- COLOPHON / FIELD NOTES ---------- */
+  .notes{
+    background:var(--ink);
+    color:#C9CEDA;
+    padding:clamp(3rem,8vh,5rem) 1.5rem;
+  }
+  .notes-inner{max-width:42rem;margin:0 auto}
+  .notes .eyebrow{color:var(--gold)}
+  .notes h2{
+    font-family:'Fraunces',serif;font-weight:600;color:#fff;
+    font-size:1.7rem;margin:.5rem 0 1.4rem;
+  }
+  .notes p{font-size:1rem;line-height:1.75;margin:0 0 1rem;color:#C2C8D6}
+  .notes a{color:var(--gold-soft);text-decoration:none;border-bottom:1px solid rgba(231,190,134,.35);transition:border-color .2s}
+  .notes a:hover{border-color:var(--gold-soft)}
+  .notes a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
+
+  .factbar{
+    display:flex;flex-wrap:wrap;gap:1.4rem;
+    margin:1.6rem 0 2rem;padding:1.2rem 0;
+    border-top:1px solid rgba(255,255,255,.12);
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .factbar div{font-family:'Space Mono',monospace}
+  .factbar .n{display:block;color:var(--gold-soft);font-size:1.3rem;font-weight:700}
+  .factbar .l{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:#8A91A3}
+
+  .linklist{list-style:none;margin:1.4rem 0 0}
+  .linklist li{
+    padding:.85rem 0;border-top:1px solid rgba(255,255,255,.1);
+    display:flex;flex-direction:column;gap:.15rem;
+  }
+  .linklist li:last-child{border-bottom:1px solid rgba(255,255,255,.1)}
+  .linklist .what{font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:#8A91A3}
+
+  .achieve{
+    margin-top:2rem;padding:1.3rem 1.4rem;
+    border:1px solid rgba(231,190,134,.3);border-radius:3px;
+    background:rgba(217,154,78,.08);
+  }
+  .achieve strong{color:var(--gold-soft);font-family:'Fraunces',serif;font-style:italic}
+
+  footer.tail{
+    background:var(--dusk-deep);color:#7A8095;
+    text-align:center;padding:2.2rem 1.5rem;
+    font-family:'Space Mono',monospace;font-size:.7rem;
+    letter-spacing:.16em;text-transform:uppercase;
+  }
+
+  /* ---------- MOTION (subtle, opt-in) ---------- */
+  .hero-art,.hero-title,.hero-sub,.hero .eyebrow,.hero-stats{opacity:1}
+  @media (prefers-reduced-motion: no-preference){
+    .hero-art{opacity:0;animation:rise 1.3s cubic-bezier(.2,.7,.2,1) .05s forwards}
+    .hero .eyebrow{opacity:0;animation:rise .9s ease .45s forwards}
+    .hero-title{opacity:0;animation:rise 1s ease .6s forwards}
+    .hero-sub{opacity:0;animation:rise 1s ease .78s forwards}
+    .hero-stats{opacity:0;animation:rise 1s ease .95s forwards}
+    .hero-sun{transform-box:fill-box;transform-origin:center;animation:sun 1.6s ease .1s both}
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes sun{from{transform:translateY(22px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:540px){
+    body{font-size:1.08rem}
+    .pair{grid-template-columns:1fr}
+    .pair .wolf{border-right:none;border-bottom:1px solid var(--line)}
+    .divider .peaks{font-size:.58rem;letter-spacing:.14em;white-space:normal}
+    .lede::first-letter{font-size:3.8rem}
+  }
+
+  @media print{
+    body{background:#fff;font-size:11pt}
+    body::before,.hero-art,.moral-sky{display:none}
+    .hero,.moral{color:#000}
+    .hero-title,.moral-line{color:#000;text-shadow:none}
+    .moral{background:#fff}
+    .notes,footer.tail{background:#fff;color:#000}
+    .divider,.plate,.duo{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========================= HERO ========================= -->
+<header class="hero">
+  <div class="hero-art" aria-hidden="true">
+    <svg viewBox="0 0 1440 560" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#9FB4CB"/>
+          <stop offset="42%" stop-color="#C4C2C0"/>
+          <stop offset="72%" stop-color="#E7C79C"/>
+          <stop offset="100%" stop-color="#EAD3B0"/>
+        </linearGradient>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#F4D9A8" stop-opacity=".9"/>
+          <stop offset="100%" stop-color="#F4D9A8" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <rect width="1440" height="560" fill="url(#dawn)"/>
+      <circle cx="1075" cy="168" r="150" fill="url(#glow)"/>
+      <circle class="hero-sun" cx="1075" cy="168" r="50" fill="#E9B978"/>
+
+      <!-- back ridge -->
+      <path d="M0,322 L120,302 L240,332 L360,288 L520,330 L680,278 L820,320 L980,272 L1140,316 L1300,286 L1440,310 L1440,560 L0,560 Z"
+            fill="#7E9189" opacity=".55"/>
+      <!-- mid ridge -->
+      <path d="M0,382 L90,350 L170,396 L260,338 L350,402 L470,350 L560,412 L680,344 L800,406 L920,354 L1040,412 L1180,350 L1300,406 L1440,360 L1440,560 L0,560 Z"
+            fill="#3E5C50" opacity=".82"/>
+      <!-- front ridge -->
+      <path d="M0,472 L80,420 L150,488 L230,408 L300,470 L380,398 L460,476 L560,414 L640,482 L740,420 L840,486 L940,424 L1040,482 L1160,414 L1260,476 L1360,424 L1440,470 L1440,560 L0,560 Z"
+            fill="#243A33"/>
+      <!-- faint route line on the near ridge -->
+      <path d="M150,560 C210,500 250,470 300,468 C350,466 360,440 380,400"
+            fill="none" stroke="#B5532E" stroke-width="2" stroke-dasharray="2 7"
+            stroke-linecap="round" opacity=".7"/>
+    </svg>
+  </div>
+
+  <div class="hero-inner">
+    <p class="eyebrow">A Fable of the Issaquah Alps</p>
+    <h1 class="hero-title">The Story of the Wolf, the Gazelle <span class="amp">&amp;</span> the Eighteen Mountain Peaks</h1>
+    <p class="hero-sub">as told by Christie Allemand</p>
+    <p class="hero-stats"><b>18</b> peaks &nbsp;·&nbsp; <b>~90</b> miles &nbsp;·&nbsp; <b>~30,000</b> ft of gain &nbsp;·&nbsp; <b>endless </b> boulders</p>
+  </div>
+</header>
+
+<!-- ========================= STORY ========================= -->
+<main>
+
+  <section class="scroll">
+    <p class="lede">Once upon a time there lived a Wolf who was mighty, clever, and endlessly adventurous. If there was a mountain nearby, the Wolf wanted to climb it. If there wasn't a mountain nearby, he'd probably go looking for one.</p>
+
+    <p>Not far away lived a Gazelle who was joyful, creative, and so optimistic that even mosquitoes felt guilty biting her. She believed every impossible thing was simply a challenge waiting for enough snacks.</p>
+
+    <p>The two first met during the Issy Alps 50K. While everyone else was wondering whose idea it had been to run uphill for fun, the Wolf and the Gazelle discovered they shared an even stranger hobby: climbing mountains that sensible people avoided.</p>
+
+    <!-- character duality panel -->
+    <div class="pair">
+      <div class="wolf">
+        <span class="glyph">🐺</span>
+        <h3>The Wolf</h3>
+        <p>Mighty, clever, and endlessly adventurous — and not at all fond of how many hands a good scramble seems to require.</p>
+      </div>
+      <div class="gaz">
+        <span class="glyph">🦌</span>
+        <h3>The Gazelle</h3>
+        <p>Joyful, creative, and so optimistic that even mosquitoes felt guilty biting her. Every impossible thing is just a challenge waiting for enough snacks.</p>
+      </div>
+    </div>
+
+    <p>One day the Gazelle heard whispers of the Harvey Manning Peak Challenge — a quest involving eighteen mountain summits. Even more puzzling, no female had ever completed it.</p>
+
+    <div class="exchange">
+      <p class="say">"That doesn't seem right," said the Gazelle. "I know plenty of women tougher than mountain goats."</p>
+      <p class="say">The Wolf nodded. "Then I suppose we'd better go prove the mountains wrong."</p>
+    </div>
+
+    <p class="beat">And so the adventure began.</p>
+  </section>
+
+  <!-- divider -->
+  <div class="divider" aria-hidden="true">
+    <span class="rule"></span>
+    <span class="mark">
+      <svg width="34" height="16" viewBox="0 0 34 16"><path d="M2 15 L9 4 L14 11 L21 1 L27 9 L32 15 Z" fill="#2C4339"/><path d="M21 1 L24 5 L18 5 Z" fill="#B5532E"/></svg>
+      <span class="peaks">McClellan Butte</span>
+    </span>
+    <span class="rule"></span>
+  </div>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/01-dawn-drive.jpg" alt="A fiery red sunrise sky over a tree-lined highway on the drive to the start" width="2000" height="1506" loading="lazy" decoding="async"></div>
+    <figcaption>A red dawn on the drive in — Vasanth at the wheel.</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <p>Before sunrise they met their trusted goat friend, Vasanth, who possessed the greatest superpower of them all — a reliable car and the willingness to drive people to ridiculous places before dawn.</p>
+
+    <p>At exactly six o'clock they set off toward McClellan Butte.</p>
+  </section>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/02-start-mcclellan.jpg" alt="Christie, Kevin, and Vasanth smiling at the McClellan Butte trailhead sign at the start" width="2000" height="1500" loading="lazy" decoding="async"></div>
+    <figcaption>The start — Christie, Kevin, and Vasanth at McClellan Butte. 6:00 a.m.</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <p>The Gazelle danced happily over the summit scramble. The Wolf stared at the rocks.</p>
+
+    <div class="exchange">
+      <p class="say">"There are... entirely too many hands involved in this hiking."</p>
+      <p class="say">"You have paws," laughed the Gazelle.</p>
+      <p class="say">"I know what I said."</p>
+    </div>
+  </section>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/03-descending-mcclellan.jpg" alt="Two runners descending a steep rocky ridge below the summit of McClellan Butte" width="1500" height="2000" loading="lazy" decoding="async"></div>
+    <figcaption>Coming off McClellan Butte; Vasanth saw them this far.</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <p>After saying farewell to Vasanth, they disappeared into forests, boulder fields, forgotten service roads, mysterious game trails, and enough bushwhacking to convince both of them that every tree in the Cascades secretly wanted a hug.</p>
+
+    <p>Mount Gardner climbed steeply. Little St. Helens rewarded them with a spectacular view of Mount Rainier.</p>
+  </section>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/04-sthelens-rainier.jpg" alt="A runner on a forest ridge trail with snow-capped Mount Rainier in the distance" width="2000" height="1506" loading="lazy" decoding="async"></div>
+    <figcaption>Little St. Helens — the first of countless views of Rainier.</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <div class="exchange">
+      <p class="say">"Totally worth being scratched by seventeen different bushes," declared the Gazelle.</p>
+    </div>
+
+    <p>The Wolf silently picked another twig out of his fur.</p>
+
+    <p>Their route toward Scout Patrol wandered through truck roads and magical forests.</p>
+
+    <div class="exchange">
+      <p class="say">"This place is enchanted," whispered the Gazelle.</p>
+      <p class="say">"It's definitely enchanted," agreed the Wolf. "The trees keep moving."</p>
+      <p class="say">"No..."</p>
+      <p class="say">"They absolutely are."</p>
+    </div>
+  </section>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/05-peace-rainier.jpg" alt="Kevin on a summit throwing a peace sign toward distant Mount Rainier" width="1500" height="2000" loading="lazy" decoding="async"></div>
+    <figcaption>Above the trees, Rainier keeping watch.</figcaption>
+  </figure>
+
+  <div class="divider" aria-hidden="true">
+    <span class="rule"></span>
+    <span class="mark">
+      <svg width="34" height="16" viewBox="0 0 34 16"><path d="M2 15 L9 4 L14 11 L21 1 L27 9 L32 15 Z" fill="#2C4339"/><path d="M21 1 L24 5 L18 5 Z" fill="#B5532E"/></svg>
+      <span class="peaks">Gardner · Little St. Helens · Scout</span>
+    </span>
+    <span class="rule"></span>
+  </div>
+
+  <section class="scroll">
+    <p>Eventually they reached Humpback, where news arrived that their friend Dave was chasing them.</p>
+
+    <div class="exchange">
+      <p class="say">"It's nice to have friends," said the Gazelle.</p>
+      <p class="say">"It's less nice when they're faster than GPS," replied the Wolf.</p>
+    </div>
+
+    <p>Dave soon appeared, installed live tracking on the Gazelle's watch, and disappeared almost as quickly.</p>
+
+    <p>At Pratt Lake Trailhead more friends waited with food and supplies. Trevor examined the Gazelle's feet.</p>
+
+    <div class="exchange">
+      <p class="say">"Those are impressive blisters."</p>
+      <p class="say">"I was hoping they'd become calluses."</p>
+      <p class="say">"They've chosen violence instead."</p>
+    </div>
+  </section>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/06-rainier-snag.jpg" alt="A weathered bare snag silhouetted against forested ridges and Mount Rainier" width="2000" height="1506" loading="lazy" decoding="async"></div>
+    <figcaption>Rainier, never far from view.</figcaption>
+  </figure>
+
+  <div class="divider" aria-hidden="true">
+    <span class="rule"></span>
+    <span class="mark">
+      <svg width="34" height="16" viewBox="0 0 34 16"><path d="M2 15 L9 4 L14 11 L21 1 L27 9 L32 15 Z" fill="#2C4339"/><path d="M21 1 L24 5 L18 5 Z" fill="#B5532E"/></svg>
+      <span class="peaks">Humpback · Granite · Pratt</span>
+    </span>
+    <span class="rule"></span>
+  </div>
+
+  <figure class="duo">
+    <div class="duo-grid land">
+      <div class="cell"><img src="photos/07-rainier-log.jpg" alt="A fallen weathered log in golden evening light with Mount Rainier beyond" loading="lazy" decoding="async"></div>
+      <div class="cell"><img src="photos/08-granite-sunset.jpg" alt="Christie at the Granite Mountain lookout frame with Mount Rainier behind, near sunset" loading="lazy" decoding="async"></div>
+    </div>
+    <figcaption>Golden hour off Granite — the last easy light before a night of climbing.</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <p>Granite Mountain greeted them with daylight. Pratt Mountain greeted them with darkness. Bandera greeted them with more climbing. Mason Lake greeted them with an hour-long dirt nap.</p>
+
+    <p>The Wolf later insisted it was the finest hotel he'd ever visited. The Gazelle gave it three stars.</p>
+
+    <div class="exchange">
+      <p class="say">"Excellent views," he said. "Terrible room service."</p>
+    </div>
+  </section>
+
+  <section class="scroll">
+    <p>As dawn returned they climbed Mount Defiance, Putrid Pete, and Web. Descending Web required nerves of steel. The rocks shifted beneath every step. The Gazelle stayed carefully above the Wolf.</p>
+
+    <div class="exchange">
+      <p class="say">"I'd rather not accidentally roll a boulder onto you."</p>
+      <p class="say">"Appreciated."</p>
+      <p class="say">"It would make the rescue report awkward."</p>
+    </div>
+
+    <p>Dirty Harry lived up to its reputation. Dirty Box was even worse. They squeezed through brush decorated with fresh goat hair.</p>
+
+    <div class="exchange">
+      <p class="say">"The goats clearly know the way," said the Gazelle.</p>
+      <p class="say">"They also have four-wheel drive."</p>
+    </div>
+  </section>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/09-dirtyharry-rope-1.jpg" alt="A runner downclimbing a steep mossy gully on a fixed rope off Dirty Harry's Peak" width="1500" height="2000" loading="lazy" decoding="async"></div>
+    <figcaption>Onto the fixed line off Dirty Harry's Peak.</figcaption>
+  </figure>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/10-dirtyharry-rope-2.jpg" alt="A climber on a lichen-covered rock face holding a fixed rope, bound for Mailbox" width="2000" height="1506" loading="lazy" decoding="async"></div>
+    <figcaption>Down the rock, rope in hand, bound for Mailbox.</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <p>After climbing cracks, scrambling over boulders, and questioning several life choices, they finally reached Mailbox Peak.</p>
+
+    <p>Neither said anything for a while.</p>
+
+    <p class="beat">Sometimes surviving is conversation enough.</p>
+
+    <p>Friends — Trevor, Vasanth, and Christophe — arrived carrying the greatest treasures known to exhausted adventurers:</p>
+
+    <p class="stack">Broth.<br>Real food.<br>Encouragement.</p>
+
+    <p>The Wolf, who had spent much of the night unable to eat, finally managed a proper meal.</p>
+
+    <div class="exchange">
+      <p class="say">"It tastes amazing."</p>
+      <p class="say">"It's broth."</p>
+      <p class="say">"It's the greatest broth in recorded history."</p>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <span class="rule"></span>
+    <span class="mark">
+      <svg width="34" height="16" viewBox="0 0 34 16"><path d="M2 15 L9 4 L14 11 L21 1 L27 9 L32 15 Z" fill="#2C4339"/><path d="M21 1 L24 5 L18 5 Z" fill="#B5532E"/></svg>
+      <span class="peaks">Defiance · Web · Dirty Harry · Mailbox</span>
+    </span>
+    <span class="rule"></span>
+  </div>
+
+  <section class="scroll">
+    <p>Then came Green to Teneriffe. Everyone agreed this was the hardest section, and for some silly reason the French goat Christophe agreed to join. Everyone also wondered why he had agreed to it.</p>
+
+    <p>The route off Green included cliffs, sketchy game trails, creek beds, boulder fields, and what the Wolf officially classified as "the No Error Zone."</p>
+
+    <div class="exchange">
+      <p class="say">The Gazelle preferred calling it "character building."</p>
+      <p class="say">The Wolf preferred not building any more character.</p>
+    </div>
+  </section>
+
+  <figure class="duo">
+    <div class="duo-grid port">
+      <div class="cell"><img src="photos/11-green-teneriffe-1.jpg" alt="Dense green forest and brush on the steep traverse between Green and Teneriffe" loading="lazy" decoding="async"></div>
+      <div class="cell"><img src="photos/12-green-teneriffe-2.jpg" alt="Thick overgrown vegetation on the traverse between Green and Teneriffe" loading="lazy" decoding="async"></div>
+    </div>
+    <figcaption>Green to Teneriffe — the hardest section. The "No Error Zone."</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <p>When Caroline appeared near Teneriffe with snacks, she instantly became everyone's favorite human. Even the mountains seemed to approve.</p>
+
+    <p>From Teneriffe to Mount Si the trail became kinder. The Gazelle smiled.</p>
+
+    <div class="exchange">
+      <p class="say">"I think we've done the hard part."</p>
+    </div>
+
+    <p>The Wolf looked suspiciously at the mountain.</p>
+
+    <div class="exchange">
+      <p class="say">"Don't let it hear you."</p>
+    </div>
+
+    <p>They descended to Little Si, where they slept briefly before beginning their final climb beneath the stars.</p>
+
+    <p>The Wolf finally felt stronger. The Gazelle slowly bounced uphill with the enthusiasm of someone who had somehow forgotten they had already climbed seventeen mountains.</p>
+
+    <p class="beat">One final summit remained.</p>
+
+    <p>Together they reached the top. There was no dramatic trumpet. No cheering crowd. Just tired smiles, scratched legs, torn clothes, aching calves, blistered feet, and the quiet satisfaction of finishing something extraordinary.</p>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <span class="rule"></span>
+    <span class="mark">
+      <svg width="34" height="16" viewBox="0 0 34 16"><path d="M2 15 L9 4 L14 11 L21 1 L27 9 L32 15 Z" fill="#2C4339"/><path d="M21 1 L24 5 L18 5 Z" fill="#B5532E"/></svg>
+      <span class="peaks">Green · Teneriffe · Si · The Last Summit</span>
+    </span>
+    <span class="rule"></span>
+  </div>
+
+  <figure class="plate">
+    <div class="plate-frame"><img src="photos/13-finish-rattlesnake.jpg" alt="Christie and Kevin grinning at the Rattlesnake Mountain trailhead sign in the dark at the finish" width="2000" height="1500" loading="lazy" decoding="async"></div>
+    <figcaption>Finish-line elation — Rattlesnake Mountain, in the dark.</figcaption>
+  </figure>
+
+  <section class="scroll">
+    <p>Vasanth drove them back to the trailhead while both promptly fell asleep somewhere between "Congratulations!" and "Does anyone want coffee?"</p>
+
+    <p>And so the Wolf completed the Harvey Manning Peak Challenge for a second time. The Gazelle became the first woman to complete it.</p>
+
+    <p>The mountains remained exactly where they had always been. But they would forever remember the Wolf who grumbled through every scramble...</p>
+
+    <p class="beat">...and the Gazelle who smiled through every mile.</p>
+  </section>
+
+</main>
+
+<!-- ========================= MORAL (paper blending down into night) ========================= -->
+<section class="moral">
+  <div class="moral-sky" aria-hidden="true">
+    <svg viewBox="0 0 1440 940" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <!-- crescent moon in the open twilight sky to the right of the text -->
+      <circle cx="1158" cy="588" r="42" fill="#E7BE86"/>
+      <circle cx="1139" cy="577" r="42" fill="#5F527A"/>
+      <!-- stars, kept to the twilight / night band -->
+      <g fill="#EDEAF6">
+        <circle cx="170" cy="520" r="1.4" opacity=".9"/>
+        <circle cx="300" cy="640" r="1" opacity=".65"/>
+        <circle cx="470" cy="500" r="1.7" opacity=".95"/>
+        <circle cx="610" cy="600" r="1" opacity=".6"/>
+        <circle cx="760" cy="540" r="1.3" opacity=".85"/>
+        <circle cx="900" cy="660" r="1" opacity=".65"/>
+        <circle cx="250" cy="720" r="1.1" opacity=".6"/>
+        <circle cx="540" cy="700" r="1.2" opacity=".8"/>
+        <circle cx="1010" cy="520" r="1" opacity=".7"/>
+        <circle cx="1280" cy="690" r="1.3" opacity=".8"/>
+        <circle cx="95"  cy="610" r="1" opacity=".55"/>
+        <circle cx="1330" cy="560" r="1.1" opacity=".65"/>
+        <circle cx="700" cy="470" r="1" opacity=".6"/>
+        <circle cx="430" cy="760" r="1.2" opacity=".7"/>
+        <circle cx="1130" cy="720" r="1" opacity=".6"/>
+      </g>
+      <!-- low ridgeline silhouette anchored to the bottom -->
+      <path d="M0,862 L120,832 L230,874 L340,824 L470,874 L600,830 L720,876 L860,832 L980,878 L1120,828 L1260,874 L1440,834 L1440,940 L0,940 Z" fill="#141127"/>
+    </svg>
+  </div>
+  <div class="moral-inner">
+    <p class="eyebrow">Moral of the Story</p>
+    <p class="moral-line">"Impossible things are usually just very long adventures with good friends, stubborn determination, and an unreasonable amount of broth."</p>
+  </div>
+</section>
+
+<!-- ========================= FIELD NOTES / COLOPHON ========================= -->
+<section class="notes">
+  <div class="notes-inner">
+    <p class="eyebrow">Field Notes</p>
+    <h2>About the Challenge</h2>
+    <p>The Harvey Manning Peak Challenge is a peak-bagging quest in the Issaquah Alps east of Seattle, designed by George Orozco. The objective is to summit eighteen specific peaks in a single continuous push — roughly 100 miles with around 40,000 feet of elevation gain — starting at McClellan Butte and finishing at Rattlesnake Mountain's Snoqualmie Point. There is no fixed route; most peaks have faint trails, some are boulder-field scrambles, and a few are pure bushwhacks.</p>
+    <p>It is named for conservationist Harvey Manning, who coined the term "Issaquah Alps" to elevate these foothills in the public eye and help protect them.</p>
+
+    <div class="factbar">
+      <div><span class="n">18</span><span class="l">Peaks</span></div>
+      <div><span class="n">~100</span><span class="l">Miles</span></div>
+      <div><span class="n">~40k</span><span class="l">Feet of gain</span></div>
+      <div><span class="n">Jun '26</span><span class="l">Juneteenth start</span></div>
+    </div>
+
+    <ul class="linklist">
+      <li>
+        <span class="what">The Challenge, Defined</span>
+        <a href="https://bonegamespnw.wordpress.com/events/harvey-manning-peak-challenge/" target="_blank" rel="noopener">Harvey Manning Peak Challenge — Bone Games PNW</a>
+      </li>
+      <li>
+        <span class="what">GPS Track — Strava</span>
+        <a href="https://www.strava.com/activities/19014474927" target="_blank" rel="noopener">View the recorded route (1)</a>
+      </li>
+      <li>
+        <span class="what">GPS Track — Strava</span>
+        <a href="https://www.strava.com/activities/19009011658" target="_blank" rel="noopener">View the recorded route (2)</a>
+      </li>
+    </ul>
+
+    <div class="achieve">
+      <strong>A first.</strong> &nbsp;The Gazelle's finish marks the first woman to complete the Harvey Manning Peak Challenge — and the Wolf's second finish of the route.
+    </div>
+  </div>
+</section>
+
+<footer class="tail">
+  The Issaquah Alps · Washington · Juneteenth Weekend, June 2026
+</footer>
+
+</body>
+</html>
